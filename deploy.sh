@@ -17,15 +17,18 @@ fi
 echo "✅ Vite build assets verified"
 
 # Generate app key if not set
-php artisan key:generate --force --no-interaction 2>/dev/null || true
+echo "🔑 Generating app key..."
+php artisan key:generate --force --no-interaction || echo "⚠️ Key generation failed, continuing..."
 
 # Run migrations
-php artisan migrate --force --no-interaction
+echo "📦 Running migrations..."
+php artisan migrate --force --no-interaction || echo "⚠️ Migration failed, continuing..."
 
 # Create storage link
 php artisan storage:link --force 2>/dev/null || true
 
 # Cache configuration
+echo "⚙️ Caching configuration..."
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
@@ -33,5 +36,8 @@ php artisan view:cache
 # Seed demo data if database is empty
 php artisan db:seed --class=AdminSeeder --force --no-interaction 2>/dev/null || true
 
-echo "✅ Deployment tasks completed!"
+# Diagnostic: test if the app boots
+echo "🔍 Testing application boot..."
+php artisan about 2>&1 | head -20 || echo "⚠️ App boot test failed"
 
+echo "✅ Deployment tasks completed!"
