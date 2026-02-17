@@ -20,9 +20,9 @@ echo "✅ Vite build assets verified"
 echo "🔑 Generating app key..."
 php artisan key:generate --force --no-interaction || echo "⚠️ Key generation skipped (already set)"
 
-# Run migrations
-echo "📦 Running migrations..."
-php artisan migrate --force --no-interaction || echo "⚠️ Migration failed, continuing..."
+# TEMPORARY: Fresh migration (drop all tables & re-run migrations)
+echo "📦 Running migrate:fresh (dropping all tables)..."
+php artisan migrate:fresh --force --no-interaction --seeder=AdminSeeder
 
 # Create storage link
 php artisan storage:link --force 2>/dev/null || true
