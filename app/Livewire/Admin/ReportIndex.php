@@ -1,0 +1,112 @@
+<?php
+
+namespace App\Livewire\Admin;
+
+use App\Models\Santri;
+use App\Models\Attendance;
+use App\Models\Achievement;
+use App\Models\Finance;
+use Livewire\Component;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
+use Carbon\Carbon;
+
+#[Layout('components.layouts.admin')]
+#[Title('Laporan')]
+class ReportIndex extends Component
+{
+    #[Url]
+    public string $activeTab = 'attendance';
+
+    #[Url]
+    public string $startDate = '';
+
+    #[Url]
+    public string $endDate = '';
+
+    public function mount()
+    {
+        if (empty($this->startDate)) {
+            $this->startDate = Carbon::now()->startOfMonth()->format('Y-m-d');
+        }
+        if (empty($this->endDate)) {
+            $this->endDate = Carbon::now()->endOfMonth()->format('Y-m-d');
+        }
+    }
+
+    public function setTab(string $tab)
+    {
+        $this->activeTab = $tab;
+    }
+
+    public function getAttendanceReport()
+    {
+        return Santri::withCount([
+            'attendances as total_hadir' => function ($query) {
+                $query->where('status', 'present')
+                    ->whereBetween('date', [$this->startDate, $this->endDate]);
+            },
+            'attendances as total_telat' => function ($query) {
+                $query->where('status', 'late')
+                    ->whereBetween('date', [$this->startDate, $this->endDate]);
+            },
+        ])
+            ->withSum(['attendances as total_poin_kehadiran' => function ($query) {
+                $query->whereBetween('date', [$this->startDate, $this->endDate]);
+            }], 'points_gained')
+            ->orderByDesc('total_hadir')
+            ->get();
+    }
+
+    public function getPointsReport()
+    {
+        return Santri::withSum(['attendances as poin_kehadiran' => function ($query) {
+            $query->whereBetween('date', [$this->startDate, $this->endDate]);
+        }], 'points_gained')
+            ->withSum(['achievements as poin_achievement' => function ($query) {
+                $query->whereBetween('date', [$this->startDate, $this->endDate]);
+            }], 'points')
+            ->get()
+            ->map(function ($santri) {
+                $santri->total_poin = ($santri->poin_kehadiran ?? 0) + ($santri->poin_achievement ?? 0);
+                return $santri;
+            })
+            ->sortByDesc('total_poin')
+            ->values();
+    }
+
+    public function getFinanceReport()
+    {
+        $transactions = Finance::whereBetween('date', [$this->startDate, $this->endDate])
+            ->orderByDesc('date')
+            ->get();
+
+        $totalIncome = Finance::whereBetween('date', [$this->startDate, $this->endDate])
+            ->income()->sum('amount');
+        $totalExpense = Finance::whereBetween('date', [$this->startDate, $this->endDate])
+            ->expense()->sum('amount');
+
+        return [
+            'transactions' => $transactions,
+            'totalIncome' => $totalIncome,
+            'totalExpense' => $totalExpense,
+            'balance' => $totalIncome - $totalExpense,
+        ];
+    }
+
+    public function render()
+    {
+        $data = [];
+
+        if ($this->activeTab === 'attendance') {
+            $data['report'] = $this->getAttendanceReport();
+        } elseif ($this->activeTab === 'points') {
+            $data['report'] = $this->getPointsReport();
+        } elseif ($this->activeTab === 'finance') {
+            $data['report'] = $this->getFinanceReport();
+        }
+
+        return view('livewire.admin.report-index', $data);
+    }
+}
