@@ -3,6 +3,12 @@ set -e
 
 echo "🚀 Running deployment tasks..."
 
+# Create .env from .env.example if it doesn't exist
+if [ ! -f ".env" ]; then
+    echo "📝 Creating .env file from .env.example..."
+    cp .env.example .env
+fi
+
 # Verify Vite build assets exist
 if [ ! -f "public/build/.vite/manifest.json" ]; then
     echo "❌ Error: Vite manifest not found! Build may have failed."
