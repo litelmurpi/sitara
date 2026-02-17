@@ -50,7 +50,7 @@
                         <div class="flex items-center gap-3 bg-teal-50 border border-teal-200 rounded-xl p-3">
                             <div class="w-10 h-10 bg-teal-200 rounded-full flex items-center justify-center overflow-hidden">
                                 @if($selectedSantri->avatar)
-                                <img src="{{ asset('storage/' . $selectedSantri->avatar) }}" alt="{{ $selectedSantri->name }}" class="w-full h-full object-cover">
+                                <img src="{{ santri_image($selectedSantri->avatar) }}" alt="{{ $selectedSantri->name }}" class="w-full h-full object-cover">
                                 @else
                                 <span class="font-bold text-teal-700">{{ substr($selectedSantri->name, 0, 1) }}</span>
                                 @endif
@@ -82,7 +82,7 @@
                                     class="w-full flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors text-left">
                                     <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
                                         @if($santri->avatar)
-                                        <img src="{{ asset('storage/' . $santri->avatar) }}" alt="{{ $santri->name }}" class="w-full h-full object-cover">
+                                        <img src="{{ santri_image($santri->avatar) }}" alt="{{ $santri->name }}" class="w-full h-full object-cover">
                                         @else
                                         <span class="text-sm font-bold text-gray-600">{{ substr($santri->name, 0, 1) }}</span>
                                         @endif
@@ -207,7 +207,7 @@
                 <div class="flex items-center gap-3 bg-white/10 rounded-xl p-3">
                     <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center overflow-hidden">
                         @if($selectedSantri->avatar)
-                        <img src="{{ asset('storage/' . $selectedSantri->avatar) }}" alt="{{ $selectedSantri->name }}" class="w-full h-full object-cover">
+                        <img src="{{ santri_image($selectedSantri->avatar) }}" alt="{{ $selectedSantri->name }}" class="w-full h-full object-cover">
                         @else
                         <span class="font-bold">{{ substr($selectedSantri->name, 0, 1) }}</span>
                         @endif

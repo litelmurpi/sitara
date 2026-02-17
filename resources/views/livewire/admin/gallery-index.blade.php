@@ -53,7 +53,7 @@
         <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
             <div class="relative aspect-square overflow-hidden">
                 <img
-                    src="{{ asset('storage/' . $gallery->image_path) }}"
+                    src="{{ santri_image($gallery->image_path, 'image') }}"
                     alt="{{ $gallery->caption }}"
                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                 <div class="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>

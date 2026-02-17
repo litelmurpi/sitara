@@ -32,7 +32,7 @@
                                 @if($avatar)
                                 <img src="{{ $avatar->temporaryUrl() }}" alt="Preview" class="w-full h-full object-cover">
                                 @elseif(isset($santri) && $santri->avatar)
-                                <img src="{{ asset('storage/' . $santri->avatar) }}" alt="{{ $santri->name }}" class="w-full h-full object-cover">
+                                <img src="{{ santri_image($santri->avatar) }}" alt="{{ $santri->name }}" class="w-full h-full object-cover">
                                 @else
                                 <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />

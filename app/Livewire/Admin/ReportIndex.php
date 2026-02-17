@@ -43,12 +43,31 @@ class ReportIndex extends Component
     public function getAttendanceReport()
     {
         return Santri::withCount([
+            // Count all 'hadir' status (both on-time and late)
             'attendances as total_hadir' => function ($query) {
-                $query->where('status', 'present')
+                $query->where('status', 'hadir')
                     ->whereBetween('date', [$this->startDate, $this->endDate]);
             },
+            // Late = hadir but only got 5 points (instead of 10)
             'attendances as total_telat' => function ($query) {
-                $query->where('status', 'late')
+                $query->where('status', 'hadir')
+                    ->where('points_gained', '<', 10)
+                    ->whereBetween('date', [$this->startDate, $this->endDate]);
+            },
+            // On-time = hadir with full 10 points
+            'attendances as total_tepat_waktu' => function ($query) {
+                $query->where('status', 'hadir')
+                    ->where('points_gained', '>=', 10)
+                    ->whereBetween('date', [$this->startDate, $this->endDate]);
+            },
+            // Izin
+            'attendances as total_izin' => function ($query) {
+                $query->whereIn('status', ['izin', 'sakit'])
+                    ->whereBetween('date', [$this->startDate, $this->endDate]);
+            },
+            // Alpha
+            'attendances as total_alpha' => function ($query) {
+                $query->where('status', 'alpha')
                     ->whereBetween('date', [$this->startDate, $this->endDate]);
             },
         ])
@@ -65,7 +84,8 @@ class ReportIndex extends Component
             $query->whereBetween('date', [$this->startDate, $this->endDate]);
         }], 'points_gained')
             ->withSum(['achievements as poin_achievement' => function ($query) {
-                $query->whereBetween('date', [$this->startDate, $this->endDate]);
+                // Achievement has no 'date' column, use 'created_at'
+                $query->whereBetween('created_at', [$this->startDate, Carbon::parse($this->endDate)->endOfDay()]);
             }], 'points')
             ->get()
             ->map(function ($santri) {

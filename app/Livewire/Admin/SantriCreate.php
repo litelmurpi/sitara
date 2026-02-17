@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Santri;
+use App\Services\FileUploadService;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\Layout;
@@ -46,7 +47,7 @@ class SantriCreate extends Component
         ]);
 
         if ($this->avatar) {
-            $path = $this->avatar->store('avatars', 'public');
+            $path = FileUploadService::upload($this->avatar, 'avatars');
             $santri->update(['avatar' => $path]);
         }
 

@@ -1,0 +1,23 @@
+#!/bin/bash
+set -e
+
+echo "🚀 Running deployment tasks..."
+
+# Generate app key if not set
+php artisan key:generate --force --no-interaction 2>/dev/null || true
+
+# Run migrations
+php artisan migrate --force --no-interaction
+
+# Create storage link
+php artisan storage:link --force 2>/dev/null || true
+
+# Cache configuration
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Seed demo data if database is empty
+php artisan db:seed --class=DemoSeeder --force --no-interaction 2>/dev/null || true
+
+echo "✅ Deployment tasks completed!"

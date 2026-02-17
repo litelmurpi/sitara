@@ -58,8 +58,11 @@
                         <tr class="bg-gray-50 text-left text-sm font-medium text-gray-600">
                             <th class="px-4 py-3">No</th>
                             <th class="px-4 py-3">Nama Santri</th>
-                            <th class="px-4 py-3 text-center">Hadir</th>
-                            <th class="px-4 py-3 text-center">Telat</th>
+                            <th class="px-4 py-3 text-center">Tepat Waktu</th>
+                            <th class="px-4 py-3 text-center">Terlambat</th>
+                            <th class="px-4 py-3 text-center">Total Hadir</th>
+                            <th class="px-4 py-3 text-center">Izin/Sakit</th>
+                            <th class="px-4 py-3 text-center">Alpha</th>
                             <th class="px-4 py-3 text-right">Poin</th>
                         </tr>
                     </thead>
@@ -70,7 +73,7 @@
                             <td class="px-4 py-3 font-medium text-gray-800">{{ $santri->name }}</td>
                             <td class="px-4 py-3 text-center">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                                    {{ $santri->total_hadir ?? 0 }}
+                                    {{ $santri->total_tepat_waktu ?? 0 }}
                                 </span>
                             </td>
                             <td class="px-4 py-3 text-center">
@@ -78,11 +81,26 @@
                                     {{ $santri->total_telat ?? 0 }}
                                 </span>
                             </td>
+                            <td class="px-4 py-3 text-center">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
+                                    {{ $santri->total_hadir ?? 0 }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    {{ $santri->total_izin ?? 0 }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800">
+                                    {{ $santri->total_alpha ?? 0 }}
+                                </span>
+                            </td>
                             <td class="px-4 py-3 text-right font-medium text-gray-800">{{ $santri->total_poin_kehadiran ?? 0 }}</td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="px-4 py-8 text-center text-gray-500">Tidak ada data</td>
+                            <td colspan="8" class="px-4 py-8 text-center text-gray-500">Tidak ada data</td>
                         </tr>
                         @endforelse
                     </tbody>

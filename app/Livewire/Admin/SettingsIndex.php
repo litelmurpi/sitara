@@ -3,11 +3,11 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Setting;
+use App\Services\FileUploadService;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\WithFileUploads;
-use Illuminate\Support\Facades\Storage;
 
 #[Layout('components.layouts.admin')]
 #[Title('Pengaturan TPA')]
@@ -49,10 +49,10 @@ class SettingsIndex extends Component
         if ($this->logo) {
             // Delete old logo
             if ($this->current_logo) {
-                Storage::disk('public')->delete($this->current_logo);
+                FileUploadService::delete($this->current_logo);
             }
 
-            $path = $this->logo->store('settings', 'public');
+            $path = FileUploadService::upload($this->logo, 'settings');
             Setting::set('logo_path', $path);
             $this->current_logo = $path;
             $this->logo = null;
@@ -64,7 +64,7 @@ class SettingsIndex extends Component
     public function removeLogo()
     {
         if ($this->current_logo) {
-            Storage::disk('public')->delete($this->current_logo);
+            FileUploadService::delete($this->current_logo);
             Setting::set('logo_path', '');
             $this->current_logo = null;
             session()->flash('message', 'Logo berhasil dihapus.');

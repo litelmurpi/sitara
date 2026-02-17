@@ -6,6 +6,7 @@ use App\Models\Santri;
 use App\Models\Finance;
 use App\Models\Attendance;
 use App\Models\Achievement;
+use App\Services\IslamicQuoteService;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -79,12 +80,15 @@ class Dashboard extends Component
             ->sortByDesc('time')
             ->take(5);
 
+        $dailyQuote = IslamicQuoteService::getTodayQuote();
+
         return view('livewire.admin.dashboard', [
             'totalSantri' => $totalSantri,
             'hadirHariIni' => $hadirHariIni,
             'totalPoin' => $totalPoin,
             'saldoKas' => $saldoKas,
             'recentActivities' => $recentActivities,
+            'dailyQuote' => $dailyQuote,
         ]);
     }
 }

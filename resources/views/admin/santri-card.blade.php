@@ -251,7 +251,7 @@
             <div class="card-front-body">
                 <div class="avatar">
                     @if($santri->avatar)
-                    <img src="{{ asset('storage/' . $santri->avatar) }}" alt="{{ $santri->name }}">
+                    <img src="{{ santri_image($santri->avatar) }}" alt="{{ $santri->name }}">
                     @else
                     <div class="avatar-placeholder">{{ substr($santri->name, 0, 1) }}</div>
                     @endif

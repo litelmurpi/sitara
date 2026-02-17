@@ -51,6 +51,11 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                             </svg>
                         </button>
+                        <button wire:click="toggleManualInput" class="w-12 h-12 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors" title="Absen Manual">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </button>
                         <button @click="switchCamera()" class="w-12 h-12 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -58,6 +63,97 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- Manual Attendance Panel -->
+                @if($showManualInput)
+                <div class="absolute inset-0 flex items-center justify-center bg-black/70 z-20">
+                    <div class="bg-gray-800 rounded-2xl p-6 max-w-sm mx-4 w-full">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold text-white">Absen Manual</h3>
+                            <button wire:click="toggleManualInput" class="p-1 text-gray-400 hover:text-white transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Search Input -->
+                        <div class="relative mb-3">
+                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <input
+                                type="text"
+                                wire:model.live.debounce.300ms="manualSearch"
+                                placeholder="Cari nama santri..."
+                                class="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors"
+                                autofocus />
+                            <div wire:loading wire:target="manualSearch" class="absolute right-3 top-1/2 -translate-y-1/2">
+                                <svg class="animate-spin h-5 w-5 text-teal-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Search Results -->
+                        <div class="max-h-64 overflow-y-auto rounded-xl">
+                            @if(count($searchResults) > 0)
+                            <div class="divide-y divide-gray-700">
+                                @foreach($searchResults as $result)
+                                <button
+                                    wire:click="processManualAttendance({{ $result['id'] }})"
+                                    @class([ 'w-full flex items-center gap-3 p-3 transition-colors text-left' , 'hover:bg-gray-700/50 cursor-pointer'=> !$result['already_attended'],
+                                    'opacity-50 cursor-not-allowed' => $result['already_attended'],
+                                    ])
+                                    @if($result['already_attended']) disabled @endif
+                                    >
+                                    <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
+                                        @if($result['avatar'])
+                                        <img src="{{ santri_image($result['avatar']) }}" alt="{{ $result['name'] }}" class="w-full h-full object-cover">
+                                        @else
+                                        <span class="text-sm font-bold text-white">{{ substr($result['name'], 0, 1) }}</span>
+                                        @endif
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-medium text-white truncate">{{ $result['name'] }}</p>
+                                        @if($result['already_attended'])
+                                        <p class="text-xs text-amber-400">Sudah absen hari ini</p>
+                                        @else
+                                        <p class="text-xs text-gray-400">Klik untuk absen</p>
+                                        @endif
+                                    </div>
+                                    @if(!$result['already_attended'])
+                                    <svg class="w-5 h-5 text-teal-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                    @else
+                                    <svg class="w-5 h-5 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    @endif
+                                </button>
+                                @endforeach
+                            </div>
+                            @elseif(strlen($manualSearch) >= 2)
+                            <div class="p-6 text-center">
+                                <svg class="w-10 h-10 mx-auto text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <p class="text-gray-400 text-sm">Santri tidak ditemukan</p>
+                            </div>
+                            @else
+                            <div class="p-6 text-center">
+                                <svg class="w-10 h-10 mx-auto text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                <p class="text-gray-400 text-sm">Ketik minimal 2 huruf untuk mencari</p>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endif
 
                 <!-- Success Modal -->
                 @if($showSuccess && $scannedSantri)
@@ -74,7 +170,7 @@
                         <div class="flex items-center gap-3 bg-gray-700/50 rounded-xl p-3 mb-4">
                             <div class="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center overflow-hidden">
                                 @if($scannedSantri->avatar)
-                                <img src="{{ asset('storage/' . $scannedSantri->avatar) }}" alt="{{ $scannedSantri->name }}" class="w-full h-full object-cover">
+                                <img src="{{ santri_image($scannedSantri->avatar) }}" alt="{{ $scannedSantri->name }}" class="w-full h-full object-cover">
                                 @else
                                 <span class="text-lg font-bold text-white">{{ substr($scannedSantri->name, 0, 1) }}</span>
                                 @endif
@@ -140,7 +236,7 @@
                     <div class="flex items-center gap-3 p-4 hover:bg-gray-700/50 transition-colors">
                         <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center overflow-hidden">
                             @if($attendance->santri->avatar)
-                            <img src="{{ asset('storage/' . $attendance->santri->avatar) }}" alt="{{ $attendance->santri->name }}" class="w-full h-full object-cover">
+                            <img src="{{ santri_image($attendance->santri->avatar) }}" alt="{{ $attendance->santri->name }}" class="w-full h-full object-cover">
                             @else
                             <span class="text-sm font-bold text-white">{{ substr($attendance->santri->name, 0, 1) }}</span>
                             @endif
@@ -186,14 +282,29 @@
         return {
             scanner: null,
             scanning: false,
+            processing: false,
+            lastScannedCode: null,
+            cooldownTimer: null,
 
             init() {
                 this.startScanner();
+
+                // Listen for Livewire modal-closed event to resume scanner
+                Livewire.on('modal-closed', () => {
+                    this.processing = false;
+                    this.resumeScanner();
+
+                    // Clear the last scanned code after a short delay
+                    // so the same QR can be scanned again in a new session
+                    this.cooldownTimer = setTimeout(() => {
+                        this.lastScannedCode = null;
+                    }, 3000);
+                });
             },
 
             startScanner() {
                 if (this.scanner) {
-                    this.scanner.stop();
+                    this.scanner.stop().catch(() => {});
                 }
 
                 this.scanner = new Html5Qrcode("qr-reader");
@@ -212,18 +323,19 @@
                     },
                     config,
                     (decodedText) => {
-                        // Stop scanner temporarily
+                        // Prevent processing if already handling a scan or same code
+                        if (this.processing || decodedText === this.lastScannedCode) {
+                            return;
+                        }
+
+                        this.processing = true;
+                        this.lastScannedCode = decodedText;
+
+                        // Pause scanner until modal is closed
                         this.scanner.pause();
 
                         // Process QR code via Livewire
                         @this.processQrCode(decodedText);
-
-                        // Resume after 2 seconds
-                        setTimeout(() => {
-                            if (this.scanner) {
-                                this.scanner.resume();
-                            }
-                        }, 2000);
                     },
                     (errorMessage) => {
                         // Ignore errors (no QR found in frame)
@@ -235,9 +347,20 @@
                 this.scanning = true;
             },
 
+            resumeScanner() {
+                if (this.scanner) {
+                    try {
+                        this.scanner.resume();
+                    } catch (e) {
+                        // If resume fails, restart the scanner
+                        this.startScanner();
+                    }
+                }
+            },
+
             stopScanner() {
                 if (this.scanner) {
-                    this.scanner.stop();
+                    this.scanner.stop().catch(() => {});
                     this.scanning = false;
                 }
             },

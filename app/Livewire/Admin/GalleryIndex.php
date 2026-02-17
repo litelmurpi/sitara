@@ -3,13 +3,13 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Gallery;
+use App\Services\FileUploadService;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 #[Layout('components.layouts.admin')]
@@ -64,7 +64,7 @@ class GalleryIndex extends Component
 
         $imagePath = null;
         if ($this->photo) {
-            $imagePath = $this->photo->store('galleries', 'public');
+            $imagePath = FileUploadService::upload($this->photo, 'galleries');
         }
 
         if ($this->editingId) {
@@ -72,7 +72,7 @@ class GalleryIndex extends Component
 
             // Delete old image if new one uploaded
             if ($imagePath && $gallery->image_path) {
-                Storage::disk('public')->delete($gallery->image_path);
+                FileUploadService::delete($gallery->image_path);
             }
 
             $gallery->update([
@@ -103,7 +103,7 @@ class GalleryIndex extends Component
         $gallery = Gallery::find($id);
         if ($gallery) {
             if ($gallery->image_path) {
-                Storage::disk('public')->delete($gallery->image_path);
+                FileUploadService::delete($gallery->image_path);
             }
             $gallery->delete();
             session()->flash('message', 'Foto berhasil dihapus.');

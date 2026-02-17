@@ -249,13 +249,19 @@
 
             <!-- Quote of the Day -->
             <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col items-center text-center">
-                <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mb-4">
+                <div class="w-12 h-12 {{ $dailyQuote['type'] === 'quran' ? 'bg-emerald-50 text-emerald-500' : 'bg-amber-50 text-amber-500' }} rounded-full flex items-center justify-center mb-4">
+                    @if($dailyQuote['type'] === 'quran')
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                    @else
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.5523 20.017 15V9C20.017 8.44772 19.5693 8 19.017 8H15.017C14.4647 8 14.017 7.55228 14.017 7V4C14.017 3.44772 14.4647 3 15.017 3H19.017C20.6739 3 22.017 4.34315 22.017 6V15C22.017 16.6569 20.6739 18 19.017 18H16.017V21H14.017ZM5.0166 21L5.0166 18C5.0166 16.8954 5.91203 16 7.0166 16H10.0166C10.5689 16 11.0166 15.5523 11.0166 15V9C11.0166 8.44772 10.5689 8 10.0166 8H6.0166C5.46432 8 5.0166 7.55228 5.0166 7V4C5.0166 3.44772 5.46432 3 6.0166 3H10.0166C11.6735 3 13.0166 4.34315 13.0166 6V15C13.0166 16.6569 11.6735 18 10.0166 18H7.0166V21H5.0166Z" />
                     </svg>
+                    @endif
                 </div>
-                <p class="text-slate-600 italic mb-3">"Sebaik-baik kalian adalah yang mempelajari Al-Qur'an dan mengajarkannya."</p>
-                <p class="text-sm font-bold text-slate-800">- HR. Bukhari</p>
+                <p class="text-slate-600 italic mb-3">"{{ $dailyQuote['text'] }}"</p>
+                <p class="text-sm font-bold text-slate-800">- {{ $dailyQuote['source'] }}</p>
             </div>
         </div>
     </div>

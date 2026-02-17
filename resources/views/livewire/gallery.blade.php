@@ -45,7 +45,7 @@
         <div class="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
             @forelse($galleries as $item)
             <div class="break-inside-avoid group relative overflow-hidden rounded-2xl bg-white shadow-sm border border-slate-100">
-                <img src="{{ asset('storage/' . $item->image_path) }}"
+                <img src="{{ santri_image($item->image_path, 'image') }}"
                     alt="{{ $item->caption }}"
                     class="w-full object-cover transition-transform duration-300 group-hover:scale-105">
 

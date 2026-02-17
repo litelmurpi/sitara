@@ -35,7 +35,7 @@
         <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-gray-100 overflow-hidden shrink-0 border border-gray-200">
                 @if($santri->avatar)
-                <img src="{{ asset('storage/' . $santri->avatar) }}" alt="{{ $santri->name }}" class="w-full h-full object-cover">
+                <img src="{{ santri_image($santri->avatar) }}" alt="{{ $santri->name }}" class="w-full h-full object-cover">
                 @else
                 <div class="w-full h-full flex items-center justify-center text-gray-500 font-bold bg-gray-200">
                     {{ substr($santri->name, 0, 1) }}
@@ -94,7 +94,7 @@
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full bg-gray-100 overflow-hidden border border-gray-200">
                                 @if($santri->avatar)
-                                <img src="{{ asset('storage/' . $santri->avatar) }}" alt="{{ $santri->name }}" class="w-full h-full object-cover">
+                                <img src="{{ santri_image($santri->avatar) }}" alt="{{ $santri->name }}" class="w-full h-full object-cover">
                                 @else
                                 <div class="w-full h-full flex items-center justify-center text-gray-500 font-bold bg-gray-200">
                                     {{ substr($santri->name, 0, 1) }}

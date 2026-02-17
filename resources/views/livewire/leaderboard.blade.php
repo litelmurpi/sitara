@@ -26,7 +26,7 @@
                 <div class="relative mb-4 group cursor-pointer">
                     <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-slate-100 border-4 border-slate-200 overflow-hidden shadow-xl transform transition-all duration-300 group-hover:scale-105 group-hover:border-slate-300">
                         @if($topThree[1]->avatar)
-                        <img src="{{ asset('storage/' . $topThree[1]->avatar) }}" alt="{{ $topThree[1]->name }}" class="w-full h-full object-cover">
+                        <img src="{{ santri_image($topThree[1]->avatar) }}" alt="{{ $topThree[1]->name }}" class="w-full h-full object-cover">
                         @else
                         <div class="w-full h-full flex items-center justify-center bg-slate-200 text-slate-500 text-2xl font-bold">
                             {{ substr($topThree[1]->name, 0, 1) }}
@@ -54,7 +54,7 @@
                     </div>
                     <div class="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full bg-amber-50 border-4 border-amber-400 overflow-hidden shadow-2xl shadow-amber-500/30 transform transition-all duration-300 group-hover:scale-105 ring-4 ring-amber-400/20 group-hover:ring-amber-400/40">
                         @if($topThree[0]->avatar)
-                        <img src="{{ asset('storage/' . $topThree[0]->avatar) }}" alt="{{ $topThree[0]->name }}" class="w-full h-full object-cover">
+                        <img src="{{ santri_image($topThree[0]->avatar) }}" alt="{{ $topThree[0]->name }}" class="w-full h-full object-cover">
                         @else
                         <div class="w-full h-full flex items-center justify-center bg-amber-100 text-amber-600 text-3xl font-bold">
                             {{ substr($topThree[0]->name, 0, 1) }}
@@ -81,7 +81,7 @@
                 <div class="relative mb-4 group cursor-pointer">
                     <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-orange-50 border-4 border-orange-700/50 overflow-hidden shadow-xl transform transition-all duration-300 group-hover:scale-105 group-hover:border-orange-700">
                         @if($topThree[2]->avatar)
-                        <img src="{{ asset('storage/' . $topThree[2]->avatar) }}" alt="{{ $topThree[2]->name }}" class="w-full h-full object-cover">
+                        <img src="{{ santri_image($topThree[2]->avatar) }}" alt="{{ $topThree[2]->name }}" class="w-full h-full object-cover">
                         @else
                         <div class="w-full h-full flex items-center justify-center bg-orange-100 text-orange-700 text-2xl font-bold">
                             {{ substr($topThree[2]->name, 0, 1) }}
@@ -131,7 +131,7 @@
                     <div class="relative w-12 h-12 shrink-0">
                         <div class="w-12 h-12 rounded-full bg-slate-100 overflow-hidden border-2 border-slate-100 group-hover:border-emerald-200 transition-colors shadow-sm">
                             @if($santri->avatar)
-                            <img src="{{ asset('storage/' . $santri->avatar) }}" alt="{{ $santri->name }}" class="w-full h-full object-cover">
+                            <img src="{{ santri_image($santri->avatar) }}" alt="{{ $santri->name }}" class="w-full h-full object-cover">
                             @else
                             <div class="w-full h-full flex items-center justify-center bg-slate-200 text-slate-500 font-bold">
                                 {{ substr($santri->name, 0, 1) }}

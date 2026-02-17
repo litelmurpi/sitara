@@ -18,7 +18,7 @@
             <div class="p-6 text-center">
                 <div class="w-24 h-24 mx-auto bg-gray-200 rounded-full flex items-center justify-center overflow-hidden mb-4">
                     @if($santri->avatar)
-                    <img src="{{ asset('storage/' . $santri->avatar) }}" alt="{{ $santri->name }}" class="w-full h-full object-cover">
+                    <img src="{{ santri_image($santri->avatar) }}" alt="{{ $santri->name }}" class="w-full h-full object-cover">
                     @else
                     <span class="text-3xl font-bold text-gray-600">{{ substr($santri->name, 0, 1) }}</span>
                     @endif
