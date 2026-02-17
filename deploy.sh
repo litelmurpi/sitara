@@ -18,7 +18,7 @@ echo "✅ Vite build assets verified"
 
 # Generate app key if not set
 echo "🔑 Generating app key..."
-php artisan key:generate --force --no-interaction || echo "⚠️ Key generation failed, continuing..."
+php artisan key:generate --force --no-interaction || echo "⚠️ Key generation skipped (already set)"
 
 # Run migrations
 echo "📦 Running migrations..."
@@ -27,9 +27,12 @@ php artisan migrate --force --no-interaction || echo "⚠️ Migration failed, c
 # Create storage link
 php artisan storage:link --force 2>/dev/null || true
 
-# Cache configuration
-echo "⚙️ Caching configuration..."
-php artisan config:cache
+# DO NOT cache config - Railway injects env vars at runtime
+# config:cache would snapshot .env.example values instead of Railway's env vars
+echo "⚠️ Skipping config:cache (Railway uses runtime env vars)"
+php artisan config:clear 2>/dev/null || true
+
+# Cache routes and views (these are safe to cache)
 php artisan route:cache
 php artisan view:cache
 
