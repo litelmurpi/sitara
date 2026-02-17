@@ -16,6 +16,13 @@ if [ -n "$PORT" ]; then
     sed -i "s/<VirtualHost \*:80>/<VirtualHost *:$PORT>/g" /etc/apache2/sites-available/000-default.conf
 fi
 
+# Ensure storage directories are writable at runtime
+echo "📂 Ensuring storage directories..."
+mkdir -p /var/www/html/storage/app/livewire-tmp
+mkdir -p /var/www/html/storage/app/public
+chmod -R 775 /var/www/html/storage
+chown -R www-data:www-data /var/www/html/storage
+
 # Run deployment tasks
 /usr/local/bin/deploy.sh
 
