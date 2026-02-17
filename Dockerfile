@@ -25,22 +25,16 @@ WORKDIR /var/www/html
 RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Copy composer files first (for better caching)
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-scripts
-
-# Copy package files and build frontend
-COPY package.json package-lock.json ./
-RUN npm ci
-COPY vite.config.js ./
-COPY resources ./resources
-RUN npm run build
-
-# Copy the rest of the application
+# Copy all application files
 COPY . .
 
-# Re-run composer scripts with full source
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 RUN composer dump-autoload --optimize
+
+# Install Node dependencies and build frontend assets
+RUN npm ci
+RUN npm run build
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
