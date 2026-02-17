@@ -3,6 +3,13 @@ set -e
 
 echo "🚀 Running deployment tasks..."
 
+# Verify Vite build assets exist
+if [ ! -f "public/build/manifest.json" ]; then
+    echo "❌ Error: Vite manifest not found! Build may have failed."
+    exit 1
+fi
+echo "✅ Vite build assets verified"
+
 # Generate app key if not set
 php artisan key:generate --force --no-interaction 2>/dev/null || true
 
@@ -21,3 +28,4 @@ php artisan view:cache
 php artisan db:seed --class=AdminSeeder --force --no-interaction 2>/dev/null || true
 
 echo "✅ Deployment tasks completed!"
+
