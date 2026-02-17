@@ -4,7 +4,7 @@ set -e
 echo "🚀 Running deployment tasks..."
 
 # Verify Vite build assets exist
-if [ ! -f "public/build/manifest.json" ]; then
+if [ ! -f "public/build/.vite/manifest.json" ]; then
     echo "❌ Error: Vite manifest not found! Build may have failed."
     exit 1
 fi
