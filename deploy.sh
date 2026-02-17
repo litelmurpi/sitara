@@ -18,6 +18,6 @@ php artisan route:cache
 php artisan view:cache
 
 # Seed demo data if database is empty
-php artisan db:seed --class=DemoSeeder --force --no-interaction 2>/dev/null || true
+php artisan db:seed --class=AdminSeeder --force --no-interaction 2>/dev/null || true
 
 echo "✅ Deployment tasks completed!"
