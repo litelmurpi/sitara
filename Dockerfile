@@ -6,12 +6,9 @@ RUN apt-get update && apt-get install -y \
     libonig-dev libxml2-dev libzip-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip \
+    && a2enmod rewrite \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Fix Apache MPM conflict - remove ALL MPMs then enable only prefork
-RUN rm -f /etc/apache2/mods-enabled/mpm_*.conf /etc/apache2/mods-enabled/mpm_*.load \
-    && a2enmod mpm_prefork \
-    && a2enmod rewrite
 
 # Install Node.js 20
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
@@ -50,10 +47,11 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
-# Copy and set entrypoint
+# Copy scripts
 COPY deploy.sh /usr/local/bin/deploy.sh
-RUN chmod +x /usr/local/bin/deploy.sh
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/deploy.sh /usr/local/bin/docker-entrypoint.sh
 
-EXPOSE 80
+EXPOSE ${PORT:-80}
 
-CMD ["/bin/bash", "-c", "/usr/local/bin/deploy.sh && apache2-foreground"]
+CMD ["/usr/local/bin/docker-entrypoint.sh"]
