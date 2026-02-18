@@ -3,33 +3,12 @@
 **Pelaksana:** Ikatan Remaja Desa  
 **Sistem:** SITARA (Sistem Informasi TPA Ramadan)  
 **Periode:** 1–28 Ramadan 1447 H (19 Feb – 18 Mar 2026)  
-**Waktu:** Pukul 15.30 – 17.15 WIB  
+**Waktu:** Pukul 16.30 – 17.15 WIB  
 **Catatan:** Setelah TPA selesai, santri langsung menuju masjid untuk buka puasa bersama (Maghrib ~17:53–18:05)
 
 ---
 
-## Alur Harian (105 menit)
-
-**Hari Materi (📝):**
-
-```
-15.30 - 15.40  │  Presensi QR + Doa Pembuka
-15.40 - 16.10  │  Materi (ceramah singkat / video / cerita)
-16.10 - 16.45  │  Aktivitas (games / praktek / kreativitas)
-16.45 - 17.00  │  Input Poin + Muraja'ah Singkat
-17.00 - 17.15  │  Doa Penutup + Persiapan ke Masjid 🕌
-```
-
-**Hari Mengaji (📖):**
-
-```
-15.30 - 15.40  │  Presensi QR + Doa Pembuka
-15.40 - 16.30  │  Mengaji / Setoran Hafalan / Tadarus
-16.30 - 17.00  │  Muraja'ah Bersama
-17.00 - 17.15  │  Input Poin + Doa Penutup + Persiapan ke Masjid 🕌
-```
-
-> ⏰ TPA selesai **pukul 17.15** agar santri punya waktu ±40 menit menuju masjid untuk **buka puasa bersama** sebelum Maghrib.
+> ⏰ TPA selesai **pukul 17.50** agar santri punya waktu lebih menuju masjid untuk **buka puasa bersama** sebelum Maghrib.
 
 ---
 
