@@ -8,7 +8,6 @@ use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
 
 #[Layout('components.layouts.admin')]
 #[Title('Scanner Kehadiran')]
@@ -21,67 +20,60 @@ class Scanner extends Component
     public int $pointsGained = 0;
     public string $attendanceStatus = '';
 
-    // Manual attendance properties
-    public bool $showManualInput = false;
-    public string $manualSearch = '';
-    public array $searchResults = [];
+    // Batch attendance properties
+    public bool $showBatchInput = false;
+    public string $batchSearch = '';
+    public array $selectedSantris = [];
+    public int $batchSuccessCount = 0;
 
-    public function updatedManualSearch()
+    public function toggleBatchInput()
     {
-        if (strlen($this->manualSearch) < 2) {
-            $this->searchResults = [];
-            return;
-        }
-
-        $today = Carbon::today();
-
-        $this->searchResults = Santri::where('name', 'like', '%' . $this->manualSearch . '%')
-            ->select('id', 'name', 'avatar')
-            ->limit(8)
-            ->get()
-            ->map(function ($santri) use ($today) {
-                $alreadyAttended = Attendance::where('santri_id', $santri->id)
-                    ->where('date', $today)
-                    ->exists();
-
-                return [
-                    'id' => $santri->id,
-                    'name' => $santri->name,
-                    'avatar' => $santri->avatar,
-                    'already_attended' => $alreadyAttended,
-                ];
-            })
-            ->toArray();
+        $this->showBatchInput = !$this->showBatchInput;
+        $this->batchSearch = '';
+        $this->selectedSantris = [];
+        $this->reset(['showSuccess', 'showError', 'errorMessage', 'scannedSantri', 'batchSuccessCount']);
     }
 
-    public function toggleManualInput()
+    public function processBatchAttendance()
     {
-        $this->showManualInput = !$this->showManualInput;
-        $this->manualSearch = '';
-        $this->searchResults = [];
-    }
+        // Filter out false values from un-checked boxes
+        $selectedIds = array_filter($this->selectedSantris);
 
-    public function processManualAttendance(int $santriId)
-    {
-        $santri = Santri::find($santriId);
-
-        if (!$santri) {
+        if (empty($selectedIds)) {
             $this->showError = true;
-            $this->errorMessage = 'Santri tidak ditemukan.';
-            $this->showManualInput = false;
+            $this->errorMessage = 'Pilih minimal satu santri untuk diabsen.';
             return;
         }
 
-        $this->showManualInput = false;
-        $this->manualSearch = '';
-        $this->searchResults = [];
+        $processedCount = 0;
+        foreach ($selectedIds as $santriId => $isSelected) {
+            $santri = Santri::find($santriId);
+            if ($santri) {
+                $success = $this->recordSingleAttendance($santri);
+                if ($success) {
+                    $processedCount++;
+                }
+            }
+        }
 
-        $this->recordAttendance($santri);
+        $this->showBatchInput = false;
+        $this->batchSearch = '';
+        $this->selectedSantris = [];
+
+        if ($processedCount > 0) {
+            $this->batchSuccessCount = $processedCount;
+            $this->showSuccess = true;
+            $this->attendanceStatus = "Berhasil mengabsen {$processedCount} santri sekaligus.";
+            $this->scannedSantri = null; // null indicates batch success UI instead of QR success UI
+        } else {
+            $this->showError = true;
+            $this->errorMessage = 'Semua santri yang dicentang sudah absen hari ini.';
+        }
     }
 
     public function processQrCode(string $token)
     {
-        $this->reset(['showSuccess', 'showError', 'errorMessage', 'scannedSantri']);
+        $this->reset(['showSuccess', 'showError', 'errorMessage', 'scannedSantri', 'batchSuccessCount']);
 
         // Find santri by QR token
         $santri = Santri::where('qr_token', $token)->first();
@@ -92,17 +84,22 @@ class Scanner extends Component
             return;
         }
 
-        $this->recordAttendance($santri);
+        $success = $this->recordSingleAttendance($santri);
+        if ($success) {
+            $this->scannedSantri = $santri->fresh();
+            $this->showSuccess = true;
+        } else {
+            $this->showError = true;
+            $this->errorMessage = $santri->name . ' sudah absen hari ini.';
+        }
     }
 
     /**
-     * Shared logic: record attendance for a santri.
-     * Used by both QR scan and manual attendance.
+     * Shared logic: record attendance for a single santri.
+     * Returns true if attendance was recorded, false if already attended.
      */
-    private function recordAttendance(Santri $santri): void
+    private function recordSingleAttendance(Santri $santri): bool
     {
-        $this->reset(['showSuccess', 'showError', 'errorMessage', 'scannedSantri']);
-
         $today = Carbon::today();
 
         // Check if already attended today
@@ -111,9 +108,7 @@ class Scanner extends Component
             ->first();
 
         if ($existingAttendance) {
-            $this->showError = true;
-            $this->errorMessage = $santri->name . ' sudah absen hari ini.';
-            return;
+            return false;
         }
 
         // Determine points based on arrival time
@@ -148,8 +143,7 @@ class Scanner extends Component
             $santri->recalculateTotalPoints();
         }
 
-        $this->scannedSantri = $santri->fresh();
-        $this->showSuccess = true;
+        return true;
     }
 
     public function closeModal()
@@ -171,9 +165,35 @@ class Scanner extends Component
             ->where('status', 'hadir')
             ->count();
 
+        // Data for batch attendance
+        $allSantris = [];
+        if ($this->showBatchInput) {
+            $query = Santri::query();
+
+            // Apply search filter if any
+            if (strlen($this->batchSearch) >= 2) {
+                $query->where('name', 'like', '%' . $this->batchSearch . '%');
+            }
+
+            $today = Carbon::today();
+            $allSantris = $query->orderBy('name')->get()->map(function ($santri) use ($today) {
+                $alreadyAttended = Attendance::where('santri_id', $santri->id)
+                    ->where('date', $today)
+                    ->exists();
+
+                return [
+                    'id' => $santri->id,
+                    'name' => $santri->name,
+                    'avatar' => $santri->avatar,
+                    'already_attended' => $alreadyAttended,
+                ];
+            })->toArray();
+        }
+
         return view('livewire.admin.scanner', [
             'todayAttendances' => $todayAttendances,
             'todayCount' => $todayCount,
+            'allSantris' => $allSantris,
         ]);
     }
 }

@@ -105,4 +105,9 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])
         Route::get('/reports/pdf/finance', [\App\Http\Controllers\ReportPdfController::class, 'exportFinance'])->name('reports.pdf.finance');
         Route::get('/reports/pdf/attendance', [\App\Http\Controllers\ReportPdfController::class, 'exportAttendance'])->name('reports.pdf.attendance');
         Route::get('/reports/pdf/leaderboard', [\App\Http\Controllers\ReportPdfController::class, 'exportLeaderboard'])->name('reports.pdf.leaderboard');
+
+        // Backup & Restore
+        Route::get('/backup', \App\Livewire\Admin\BackupIndex::class)->name('backup.index');
+        Route::get('/backup/export', [\App\Http\Controllers\BackupController::class, 'export'])->name('backup.export');
+        Route::post('/backup/import', [\App\Http\Controllers\BackupController::class, 'import'])->name('backup.import');
     });

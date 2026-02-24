@@ -161,6 +161,16 @@
                     Pengaturan TPA
                 </a>
 
+                <a href="{{ route('admin.backup.index') }}"
+                    class="group flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-medium transition-all duration-300 {{ request()->routeIs('admin.backup.*') ? 'bg-emerald-50 text-emerald-700 shadow-sm ring-1 ring-emerald-100' : 'text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm' }}">
+                    <div class="{{ request()->routeIs('admin.backup.*') ? 'text-emerald-500' : 'text-slate-400 group-hover:text-emerald-500' }} transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                        </svg>
+                    </div>
+                    Backup & Restore
+                </a>
+
                 <a href="{{ route('admin.profile.edit') }}"
                     class="group flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-medium transition-all duration-300 {{ request()->routeIs('admin.profile.*') ? 'bg-emerald-50 text-emerald-700 shadow-sm ring-1 ring-emerald-100' : 'text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm' }}">
                     <div class="{{ request()->routeIs('admin.profile.*') ? 'text-emerald-500' : 'text-slate-400 group-hover:text-emerald-500' }} transition-colors">
