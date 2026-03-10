@@ -2,8 +2,8 @@
     <!-- Header -->
     <div class="mb-6">
         <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
-            @if($selectedSantri)
-            <a href="{{ route('admin.santri.show', $selectedSantri) }}" class="hover:text-teal-600 transition-colors">{{ $selectedSantri->name }}</a>
+            @if($selectedSantris->count() === 1)
+            <a href="{{ route('admin.santri.show', $selectedSantris->first()) }}" class="hover:text-teal-600 transition-colors">{{ $selectedSantris->first()->name }}</a>
             @else
             <a href="{{ route('admin.santri.index') }}" class="hover:text-teal-600 transition-colors">Daftar Santri</a>
             @endif
@@ -43,34 +43,38 @@
                     <!-- Santri Selection -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Santri <span class="text-red-500">*</span>
+                            Pilih Santri <span class="text-red-500">*</span>
                         </label>
 
-                        @if($selectedSantri)
-                        <div class="flex items-center gap-3 bg-teal-50 border border-teal-200 rounded-xl p-3">
-                            <div class="w-10 h-10 bg-teal-200 rounded-full flex items-center justify-center overflow-hidden">
-                                @if($selectedSantri->avatar)
-                                <img src="{{ santri_image($selectedSantri->avatar) }}" alt="{{ $selectedSantri->name }}" class="w-full h-full object-cover">
-                                @else
-                                <span class="font-bold text-teal-700">{{ substr($selectedSantri->name, 0, 1) }}</span>
-                                @endif
+                        <!-- Selected Santris Badges -->
+                        @if($selectedSantris->isNotEmpty())
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            @foreach($selectedSantris as $santri)
+                            <div class="inline-flex items-center gap-2 bg-teal-50 border border-teal-200 rounded-full px-3 py-1.5 shadow-sm">
+                                <div class="w-6 h-6 bg-teal-200 rounded-full flex items-center justify-center overflow-hidden shrink-0">
+                                    @if($santri->avatar)
+                                    <img src="{{ santri_image($santri->avatar) }}" alt="{{ $santri->name }}" class="w-full h-full object-cover">
+                                    @else
+                                    <span class="text-xs font-bold text-teal-700">{{ substr($santri->name, 0, 1) }}</span>
+                                    @endif
+                                </div>
+                                <span class="text-sm font-medium text-gray-800">{{ $santri->name }}</span>
+                                <button type="button" wire:click="removeSantri({{ $santri->id }})" class="p-0.5 text-teal-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors focus:outline-none">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
                             </div>
-                            <div class="flex-1">
-                                <p class="font-medium text-gray-800">{{ $selectedSantri->name }}</p>
-                                <p class="text-sm text-gray-500">{{ number_format($selectedSantri->total_points, 0, ',', '.') }} Poin</p>
-                            </div>
-                            <button type="button" wire:click="clearSantri" class="p-2 text-gray-400 hover:text-red-500 transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
+                            @endforeach
                         </div>
-                        @else
+                        @endif
+
+                        <!-- Search Input -->
                         <div class="relative">
                             <input
                                 wire:model.live.debounce.300ms="search"
                                 type="text"
-                                placeholder="Cari nama santri..."
+                                placeholder="{{ $selectedSantris->isEmpty() ? 'Cari nama santri...' : 'Ketik untuk menambah santri lain...' }}"
                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors bg-gray-50">
 
                             @if($santris->count() > 0)
@@ -79,7 +83,7 @@
                                 <button
                                     type="button"
                                     wire:click="selectSantri({{ $santri->id }})"
-                                    class="w-full flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors text-left">
+                                    class="w-full flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors text-left border-b border-gray-100 last:border-0">
                                     <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
                                         @if($santri->avatar)
                                         <img src="{{ santri_image($santri->avatar) }}" alt="{{ $santri->name }}" class="w-full h-full object-cover">
@@ -89,13 +93,20 @@
                                     </div>
                                     <div>
                                         <p class="font-medium text-gray-800">{{ $santri->name }}</p>
-                                        <p class="text-xs text-gray-500">{{ number_format($santri->total_points, 0, ',', '.') }} Poin</p>
+                                        <p class="text-xs text-gray-500">{{ number_format($santri->total_points, 0, ',', '.') }} Poin saat ini</p>
+                                    </div>
+                                    <div class="ml-auto text-teal-600">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                        </svg>
                                     </div>
                                 </button>
                                 @endforeach
                             </div>
                             @endif
                         </div>
+                        @if($search && $santris->isEmpty())
+                        <p class="text-sm text-gray-500 mt-2">Tidak menemukan santri dengan nama "{{ $search }}".</p>
                         @endif
                     </div>
 
@@ -166,7 +177,7 @@
 
                     <!-- Actions -->
                     <div class="flex items-center justify-end gap-3 pt-4">
-                        <a href="{{ $selectedSantri ? route('admin.santri.show', $selectedSantri) : route('admin.santri.index') }}"
+                        <a href="{{ $selectedSantris->count() === 1 ? route('admin.santri.show', $selectedSantris->first()) : route('admin.santri.index') }}"
                             class="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium rounded-xl transition-colors">
                             Batal
                         </a>
@@ -185,7 +196,7 @@
 
         <!-- Preview Column -->
         <div class="lg:col-span-1">
-            <div class="bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl shadow-lg p-6 text-white sticky top-24">
+            <div class="bg-linear-to-br from-teal-500 to-teal-600 rounded-2xl shadow-lg p-6 text-white sticky top-24">
                 <h3 class="text-lg font-semibold mb-4">Preview Poin</h3>
 
                 <div class="bg-white/10 rounded-xl p-4 mb-4">
@@ -203,22 +214,39 @@
                     </div>
                 </div>
 
-                @if($selectedSantri)
-                <div class="flex items-center gap-3 bg-white/10 rounded-xl p-3">
-                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center overflow-hidden">
-                        @if($selectedSantri->avatar)
-                        <img src="{{ santri_image($selectedSantri->avatar) }}" alt="{{ $selectedSantri->name }}" class="w-full h-full object-cover">
-                        @else
-                        <span class="font-bold">{{ substr($selectedSantri->name, 0, 1) }}</span>
+                @if($selectedSantris->isNotEmpty())
+                <div class="mt-4 pt-4 border-t border-white/20">
+                    <h4 class="text-sm font-medium mb-3 opacity-90">Penerima Poin ({{ $selectedSantris->count() }} Santri):</h4>
+                    <div class="space-y-2">
+                        @foreach($selectedSantris->take(3) as $santri)
+                        <div class="flex items-center gap-3 bg-white/10 rounded-xl p-3">
+                            <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center overflow-hidden shrink-0">
+                                @if($santri->avatar)
+                                <img src="{{ santri_image($santri->avatar) }}" alt="{{ $santri->name }}" class="w-full h-full object-cover">
+                                @else
+                                <span class="text-xs font-bold">{{ substr($santri->name, 0, 1) }}</span>
+                                @endif
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium truncate">{{ $santri->name }}</p>
+                                <p class="text-xs opacity-80">
+                                    {{ number_format($santri->total_points, 0, ',', '.') }} →
+                                    {{ number_format($santri->total_points + $points, 0, ',', '.') }}
+                                </p>
+                            </div>
+                        </div>
+                        @endforeach
+
+                        @if($selectedSantris->count() > 3)
+                        <div class="text-center p-2 bg-white/5 rounded-xl border border-white/10 mt-2">
+                            <p class="text-xs font-medium opacity-90">+ {{ $selectedSantris->count() - 3 }} santri lainnya</p>
+                        </div>
                         @endif
                     </div>
-                    <div>
-                        <p class="font-medium">{{ $selectedSantri->name }}</p>
-                        <p class="text-sm opacity-80">
-                            {{ number_format($selectedSantri->total_points, 0, ',', '.') }} →
-                            {{ number_format($selectedSantri->total_points + $points, 0, ',', '.') }} Poin
-                        </p>
-                    </div>
+                </div>
+                @else
+                <div class="mt-4 pt-4 border-t border-white/20 text-center">
+                    <p class="text-sm opacity-80">Belum ada santri yang dipilih.</p>
                 </div>
                 @endif
             </div>

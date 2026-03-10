@@ -14,10 +14,10 @@ use Livewire\Attributes\Validate;
 #[Title('Tambah Poin')]
 class AchievementCreate extends Component
 {
-    #[Url]
-    public ?int $santri_id = null;
+    #[Url(as: 'santri_id')]
+    public ?int $initial_santri_id = null;
 
-    public ?Santri $selectedSantri = null;
+    public \Illuminate\Support\Collection $selectedSantris;
     public string $search = '';
 
     #[Validate('required')]
@@ -53,21 +53,32 @@ class AchievementCreate extends Component
 
     public function mount()
     {
-        if ($this->santri_id) {
-            $this->selectedSantri = Santri::find($this->santri_id);
+        $this->selectedSantris = collect();
+        if ($this->initial_santri_id) {
+            $santri = Santri::find($this->initial_santri_id);
+            if ($santri) {
+                $this->selectedSantris->push($santri);
+            }
         }
     }
 
     public function selectSantri(int $id)
     {
-        $this->selectedSantri = Santri::find($id);
+        // Don't add if already selected
+        if (!$this->selectedSantris->contains('id', $id)) {
+            $santri = Santri::find($id);
+            if ($santri) {
+                $this->selectedSantris->push($santri);
+            }
+        }
         $this->search = '';
     }
 
-    public function clearSantri()
+    public function removeSantri(int $id)
     {
-        $this->selectedSantri = null;
-        $this->santri_id = null;
+        $this->selectedSantris = $this->selectedSantris->reject(function (Santri $santri) use ($id) {
+            return $santri->id === $id;
+        });
     }
 
     public function selectPreset(string $label, int $points)
@@ -80,24 +91,36 @@ class AchievementCreate extends Component
     {
         $this->validate();
 
-        if (!$this->selectedSantri) {
-            session()->flash('error', 'Pilih santri terlebih dahulu.');
+        if ($this->selectedSantris->isEmpty()) {
+            session()->flash('error', 'Pilih minimal satu santri terlebih dahulu.');
             return;
         }
 
-        Achievement::create([
-            'santri_id' => $this->selectedSantri->id,
-            'type' => $this->type,
-            'description' => $this->description,
-            'points' => $this->points,
-            'created_by' => auth()->id(),
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () {
+            foreach ($this->selectedSantris as $santri) {
+                Achievement::create([
+                    'santri_id' => $santri->id,
+                    'type' => $this->type,
+                    'description' => $this->description,
+                    'points' => $this->points,
+                    'created_by' => auth()->id() ?? 1, // Fallback if no auth
+                ]);
 
-        // Recalculate total points (triggered automatically by model observer)
+                // Trigger point recalculation
+                $santri->recalculateTotalPoints();
+            }
+        });
 
-        session()->flash('message', 'Poin berhasil ditambahkan untuk ' . $this->selectedSantri->name);
+        $count = $this->selectedSantris->count();
+        $message = "Poin berhasil ditambahkan untuk {$count} santri.";
+        session()->flash('message', $message);
 
-        return $this->redirect(route('admin.santri.show', $this->selectedSantri), navigate: true);
+        // Redirect back to single santri profile if only 1 was selected and initialized from URL
+        if ($count === 1 && $this->initial_santri_id) {
+            return $this->redirect(route('admin.santri.show', $this->selectedSantris->first()), navigate: true);
+        }
+
+        return $this->redirect(route('admin.santri.index'), navigate: true);
     }
 
     public function render()
@@ -105,7 +128,9 @@ class AchievementCreate extends Component
         $santris = collect();
 
         if ($this->search && strlen($this->search) >= 2) {
+            $selectedIds = $this->selectedSantris->pluck('id')->toArray();
             $santris = Santri::where('name', 'like', '%' . $this->search . '%')
+                ->whereNotIn('id', $selectedIds)
                 ->take(5)
                 ->get();
         }
